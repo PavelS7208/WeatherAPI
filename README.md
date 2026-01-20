@@ -2,4 +2,4 @@
 Проба пера на GO. Сервер отвечает на запросы о погоде в городах. Реализация с учетом большого кол-ва запросов (кэширование и очистка кэша).
 
 
-Запрос   http://localhost:8080/weather?city=Khabarovsk
+Запрос  curl http://localhost:8080/weather?city=Khabarovsk
