@@ -22,13 +22,27 @@
 Основной функционал - покрыт тестами.
 
 
+Запуск:
+   cd weatherAPI
+   cd cmd
+   go run main.go
+
 Запрос для проверки   curl http://localhost:8080/weather?city=Khabarovsk
 
-Результат в виде
+Пример лога работы:
+  2026/01/20 22:30:56 Starting server on :8080
+  2026/01/20 22:31:09 Cache MISS for city: Khabarovsk
+  2026/01/20 22:31:11 Cache HIT for city: Khabarovsk
+  2026/01/20 22:31:15 Cache HIT for city: Khabarovsk
+  2026/01/20 22:31:27 Cache MISS for city: Vladivostok
+  2026/01/20 22:31:30 Cache HIT for city: Vladivostok
+  2026/01/20 22:34:56 Cache cleanup: removed 2 expired items
+  2026/01/20 22:35:07 Cache MISS for city: Vladivostok
+  2026/01/20 22:35:10 Cache HIT for city: Vladivostok
+  2026/01/20 22:35:20 Cache MISS for city: Khabarovsk
+  2026/01/20 22:35:23 Cache HIT for city: Khabarovsk
+  2026/01/20 22:36:09 Shutdown signal received
+  2026/01/20 22:36:09 Shutting down gracefully...
+  2026/01/20 22:36:09 Cache cleanup stopped
+  2026/01/20 22:36:09 Server stopped gracefully
 
-{
-  "city": "Khabarovsk",
-  "temperature": 19.5,
-  "description": "Partly cloudy",
-  "timestamp": 1768906204
-}
