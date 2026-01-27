@@ -8,30 +8,40 @@ import (
 	"weatherAPI/internal/models"
 )
 
-type WeatherCacheItem struct {
+type WeatherCache interface {
+	Get(city string) (models.WeatherResponse, bool)
+	Set(city string, data models.WeatherResponse)
+}
+
+type CleanableWeatherCache interface {
+	WeatherCache
+	StartCleanup(ctx context.Context)
+}
+
+type inMemoryWeatherCacheItem struct {
 	Data      models.WeatherResponse
 	ExpiresAt time.Time
 }
 
-type WeatherCache struct {
+type inMemoryWeatherCache struct {
 	mu    sync.RWMutex
-	items map[string]WeatherCacheItem
+	items map[string]inMemoryWeatherCacheItem
 	ttl   time.Duration
 }
 
-func NewWeatherCache(ttl time.Duration) *WeatherCache {
-	return &WeatherCache{
-		items: make(map[string]WeatherCacheItem),
+func NewInMemoryWeatherCache(ttl time.Duration) CleanableWeatherCache {
+	return &inMemoryWeatherCache{
+		items: make(map[string]inMemoryWeatherCacheItem),
 		ttl:   ttl,
 	}
 }
 
-// Запускаем фоновую процедуру - которая зависит от контекста
-func (c *WeatherCache) StartCleanup(ctx context.Context) {
+// StartCleanup Запускаем фоновую процедуру - которая зависит от контекста
+func (c *inMemoryWeatherCache) StartCleanup(ctx context.Context) {
 	go c.cleanupExpired(ctx)
 }
 
-func (c *WeatherCache) Get(city string) (models.WeatherResponse, bool) {
+func (c *inMemoryWeatherCache) Get(city string) (models.WeatherResponse, bool) {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
 
@@ -42,17 +52,17 @@ func (c *WeatherCache) Get(city string) (models.WeatherResponse, bool) {
 	return item.Data, true
 }
 
-func (c *WeatherCache) Set(city string, data models.WeatherResponse) {
+func (c *inMemoryWeatherCache) Set(city string, data models.WeatherResponse) {
 	c.mu.Lock()
 	defer c.mu.Unlock()
 
-	c.items[city] = WeatherCacheItem{
+	c.items[city] = inMemoryWeatherCacheItem{
 		Data:      data,
 		ExpiresAt: time.Now().Add(c.ttl),
 	}
 }
 
-func (c *WeatherCache) cleanupExpired(ctx context.Context) {
+func (c *inMemoryWeatherCache) cleanupExpired(ctx context.Context) {
 	ticker := time.NewTicker(1 * time.Minute)
 	defer ticker.Stop()
 
@@ -67,7 +77,7 @@ func (c *WeatherCache) cleanupExpired(ctx context.Context) {
 	}
 }
 
-func (c *WeatherCache) performCleanup() {
+func (c *inMemoryWeatherCache) performCleanup() {
 	now := time.Now()
 	var expiredKeys []string
 

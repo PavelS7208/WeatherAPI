@@ -7,7 +7,7 @@ import (
 )
 
 func TestWeatherCache_SetAndGet(t *testing.T) {
-	cache := NewWeatherCache(5 * time.Second)
+	cache := NewInMemoryWeatherCache(5 * time.Second)
 
 	weather := models.WeatherResponse{
 		City:        "Moscow",
@@ -34,7 +34,7 @@ func TestWeatherCache_SetAndGet(t *testing.T) {
 }
 
 func TestWeatherCache_Expiration(t *testing.T) {
-	cache := NewWeatherCache(100 * time.Millisecond)
+	cache := NewInMemoryWeatherCache(100 * time.Millisecond)
 
 	weather := models.WeatherResponse{
 		City:        "London",
@@ -60,7 +60,7 @@ func TestWeatherCache_Expiration(t *testing.T) {
 }
 
 func TestWeatherCache_NotFound(t *testing.T) {
-	cache := NewWeatherCache(5 * time.Second)
+	cache := NewInMemoryWeatherCache(5 * time.Second)
 
 	if _, found := cache.Get("NonExistent"); found {
 		t.Fatal("Expected not to find non-existent city")

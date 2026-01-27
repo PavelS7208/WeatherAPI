@@ -23,13 +23,18 @@ const (
 	idleTimeout     = 120 * time.Second
 )
 
+type CleanableCache interface {
+	service.Cache
+	StartCleanup(ctx context.Context)
+}
+
 type App struct {
 	server *http.Server
-	cache  *cache.WeatherCache
+	cache  CleanableCache
 }
 
 func NewApp(cfg *config.Config) (*App, error) {
-	weatherCache := cache.NewWeatherCache(cfg.CacheTTL)
+	weatherCache := cache.NewInMemoryWeatherCache(cfg.CacheTTL)
 	weatherClient := client.NewWeatherClient(cfg.ExternalAPIURL, cfg.APIKey)
 	weatherService := service.NewWeatherService(weatherCache, weatherClient)
 	weatherHandler := handler.NewWeatherHandler(weatherService)
